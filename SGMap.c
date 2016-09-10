@@ -2,8 +2,9 @@
 #include <string.h>
 
 int main(int argc, char **argv) {
+	local_error = 0;
 #if DEBUG_H
-	char imagePath[DEBUG_PATH_LIMIT];
+	uint8_t imagePath[DEBUG_PATH_LIMIT];
 	memset(imagePath, 0, DEBUG_PATH_LIMIT);
 	strcpy_s(imagePath, DEBUG_PATH_LIMIT, DEBUG_PATH);
 #else 
@@ -11,7 +12,7 @@ int main(int argc, char **argv) {
 		// help
 		return -1;
 	}
-	char * imagePath;
+	uint8_t * imagePath;
 	for (int i = 1; i < argc; i++) {
 		if (argv[i][0] == '-') {
 			switch (argv[i][1]) {
@@ -29,12 +30,16 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 	fseek(descriptor, 0, SEEK_END);
-	unsigned long int size = ftell(descriptor);
+	uint64_t size = ftell(descriptor);
 	rewind(descriptor);
 	IMAGE  * file_image = (IMAGE *)malloc(sizeof(IMAGE) * size);
-	unsigned long int result = fread(file_image, sizeof(IMAGE), size, descriptor);
+	uint64_t result = fread(file_image, sizeof(IMAGE), size, descriptor);
 	if (result != size) {
 		// Error
 		return -1;
 	}
+	if (ValidImage(file_image, size)) {
+		result = Decopmresion(&file_image, size);							// Factual Address 
+	}
+	
 }
